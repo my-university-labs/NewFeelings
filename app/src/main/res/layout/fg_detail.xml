@@ -1,0 +1,118 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+
+        <ImageView
+            android:id="@+id/id_content"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:layout_margin="0dp"
+            android:scaleType="fitCenter"
+             />
+    </FrameLayout>
+
+    <com.fghz.album.view.MyHorizontalScrollView
+        android:id="@+id/id_horizontalScrollView"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_gravity="bottom"
+        android:background="@android:color/white"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:id="@+id/id_gallery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:orientation="horizontal" >
+        </LinearLayout>
+    </com.fghz.album.view.MyHorizontalScrollView>
+
+
+    <!--<View-->
+        <!--android:id="@+id/div_tab_bar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="1px"-->
+        <!--android:background="@color/div_white"-->
+        <!--android:layout_above="@id/ly_tab_bar"/>-->
+
+    <!--<LinearLayout-->
+        <!--android:id="@+id/ly_tab_bar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="56dp"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:background="@color/bg_white"-->
+        <!--android:orientation="horizontal">-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/back"-->
+            <!--android:clickable="true"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_weight="1"-->
+            <!--android:drawablePadding="1dp"-->
+            <!--android:drawableTop="@drawable/tab_back"-->
+            <!--android:gravity="center"-->
+            <!--android:padding="10dp"-->
+            <!--android:text="@string/back"-->
+            <!--android:textColor="@drawable/tab_menu_text"-->
+            <!--android:textSize="12sp" />-->
+
+        <!--&lt;!&ndash;<TextView&ndash;&gt;-->
+            <!--&lt;!&ndash;android:id="@+id/share"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:clickable="true"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_width="0dp"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_height="match_parent"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_weight="1"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:drawablePadding="1dp"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:drawableTop="@drawable/tab_share"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:gravity="center"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:padding="10dp"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:text="@string/share"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:textColor="@drawable/tab_menu_text"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:textSize="12sp" />&ndash;&gt;-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/love"-->
+            <!--android:clickable="true"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_weight="1"-->
+            <!--android:drawablePadding="1dp"-->
+            <!--android:drawableTop="@drawable/tab_love"-->
+            <!--android:gravity="center"-->
+            <!--android:padding="10dp"-->
+            <!--android:text="@string/love"-->
+            <!--android:textColor="@drawable/tab_menu_text"-->
+            <!--android:textSize="12sp"/>-->
+
+        <!--&lt;!&ndash;<TextView&ndash;&gt;-->
+            <!--&lt;!&ndash;android:id="@+id/delete"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:clickable="true"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_width="0dp"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_height="match_parent"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_weight="1"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:drawablePadding="1dp"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:drawableTop="@drawable/tab_delete"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:gravity="center"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:padding="10dp"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:text="@string/delete"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:textColor="@drawable/tab_menu_text"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:textSize="12sp"/>&ndash;&gt;-->
+
+
+    <!--</LinearLayout>-->
+
+
+
+
+</LinearLayout>

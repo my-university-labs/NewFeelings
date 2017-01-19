@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name"> 相簿</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+
+
+    <string name="tab_menu_photos">照片</string>
+    <string name="tab_menu_memory">回忆</string>
+    <string name="tab_menu_albums">相册</string>
+    <string name="message">相簿</string>
+    <string name="back">返回</string>
+    <string name="share">分享</string>
+    <string name="love">喜爱</string>
+    <string name="delete">删除</string>
+
+
+</resources>
