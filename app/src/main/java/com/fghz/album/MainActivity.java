@@ -26,6 +26,7 @@ import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -34,6 +35,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.tensorflow.demo.Classifier;
 
@@ -50,39 +52,7 @@ import com.fghz.album.dao.MyDatabaseHelper;
 import com.fghz.album.R;
 
 /**
- * 主活动
- * 进入相册的界面
- * Created by dongchang @ 20161218
- */
-
-/**
- * 全部布局介绍：
- *
- * activity_main.xml: 主布局，进入app后的第一个布局，除了动作栏和选项卡之外，中间是一个fregment
- *
- * album_item: 相册的单个元素的定义
- *
- * fg_ablums: 相册的fregment定义
- *
- * fg_detail: 照片细节，即查看一张具体的照片
- *
- * fg_memory： 回忆的fregment定义
- *
- * fg_photos：显示全部照片的fregment
- *
- * gallery_item :照片细节中的下面缩略图单个的定义
- *
- * memory_item: 回忆的单个元素的定义
- *
- * photo_item: 照片fregment中的单个元素的定义
- */
-
-/**
- * res 文件夹
- * drawable：
- * menu：上面动作栏的显示内容，如搜索等
- * mipmap：图标资源，如返回删除分享图标
- *
+ * created by dongchangzhang
  */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -97,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Albums albums;
     private FragmentManager fManager;
     private List<Classifier.Recognition> results;
-    private static final int PERMISSION_REQUEST_STORAGE = 200;
+    private static final int PERMISSION_REQUEST_CAMERA = 300;
 
     // for camera to save image
     private Uri contentUri;
@@ -116,18 +86,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 生成布局
         setContentView(R.layout.activity_main);
-        // ui界面最上边的动作栏
         actionBar = getSupportActionBar();
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         // fragment
         fManager = getFragmentManager();
-        // 绑定事件
         bindViews();
-        //模拟一次点击，既进去后选择第一项
         txt_photos.performClick();
-
     }
     /**
      * ActionBar
@@ -163,19 +128,56 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.action_camera:
                 // 拍照
                 if (Build.VERSION.SDK_INT >= 23) {
-                    ActivityCompat.requestPermissions(this, new String[]{
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.CAMERA},
-                            PERMISSION_REQUEST_STORAGE);
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                            != PackageManager.PERMISSION_GRANTED ) {
+                        ActivityCompat.requestPermissions(this,
+                                new String[]{ Manifest.permission.CAMERA },
+                                PERMISSION_REQUEST_CAMERA);
+                    }
+                    else {
+                        startCamera();
+                    }
                 }
-                startCamera();
+                else {
+                    startCamera();
+                }
+
                 break;
                 // 语音
             default:
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    /**
+     * do it after require permission
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        doNext(requestCode,grantResults);
+    }
+
+    /**
+     * if have permission will do this, or show a toast
+     * @param requestCode
+     * @param grantResults
+     */
+    private void doNext(int requestCode, int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST_CAMERA) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startCamera();
+            } else {
+                Toast.makeText(MainActivity.this,
+                        "Sorry, Application Can not work without permission",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     /**

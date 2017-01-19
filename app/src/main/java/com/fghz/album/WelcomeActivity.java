@@ -85,7 +85,6 @@ public class WelcomeActivity extends AppCompatActivity {
                     break;
                 // this activity will be finished
                 case 0x24:
-
                     do_finishThisActivity();
                     break;
             }
@@ -133,11 +132,9 @@ public class WelcomeActivity extends AppCompatActivity {
                 prepareForApplication();
             }
         }
-
         else {
             prepareForApplication();
         }
-
     }
 
     /**
@@ -162,7 +159,9 @@ public class WelcomeActivity extends AppCompatActivity {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 prepareForApplication();
             } else {
-                Toast.makeText(WelcomeActivity.this, "Sorry, Application Can not work without permission", Toast.LENGTH_LONG).show();
+                Toast.makeText(WelcomeActivity.this,
+                        "Sorry, Application Can not work without permission",
+                        Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -273,13 +272,13 @@ public class WelcomeActivity extends AppCompatActivity {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(WelcomeActivity.this);
             builder.setTitle("选择图片处理的时间");
+            builder.setIcon(R.drawable.things);
             builder.setItems(actions, new DialogInterface.OnClickListener()
             {
                 @Override
                 public void onClick(DialogInterface dialog, int which)
                 {
                     final MyDatabaseOperator operator = new MyDatabaseOperator(WelcomeActivity.this, Config.DB_NAME, Config.dbversion);
-
                     ContentValues values = new ContentValues();
                     values.put("notFirstIn", "true");
                     values.put("updateTime", which);
