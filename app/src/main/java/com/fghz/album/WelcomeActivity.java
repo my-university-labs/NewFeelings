@@ -63,6 +63,7 @@ public class WelcomeActivity extends AppCompatActivity {
     private int size = 0;
     private TextView textView = null;
     private TextView textViewTitle = null;
+    private ProgressBar pbar;
     private final String[] actions =  {
             "全部进入APP时处理", "全部后台处理", "根据图片数量决定"};
 
@@ -81,6 +82,10 @@ public class WelcomeActivity extends AppCompatActivity {
                     do_afterScanImage();
                     break;
                 // classifying image with tf
+                //
+                case 0x3:
+                    textView.setText("正在准备...");
+                    break;
                 case 0x23:
                     i++;
                     if (textView != null)
@@ -107,6 +112,9 @@ public class WelcomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_welcome);
         textView = (TextView) findViewById(R.id.work_process);
         textViewTitle = (TextView) findViewById(R.id.app_title);
+        pbar = (ProgressBar) findViewById(R.id.progressBar);
+        pbar.setVisibility(pbar.GONE);
+        setAppName();
         // init tensorflow
         if (Config.classifier == null) {
             // get permission
@@ -129,6 +137,7 @@ public class WelcomeActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, new String[]{
                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
                         Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.SYSTEM_ALERT_WINDOW,
                 }, PERMISSION_REQUEST_STORAGE);
             }
             else {
@@ -160,6 +169,8 @@ public class WelcomeActivity extends AppCompatActivity {
     private void doNext(int requestCode, int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_STORAGE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                pbar.setVisibility(pbar.VISIBLE);
+                myHandler.sendEmptyMessage(0x3);
                 prepareForApplication();
             } else {
                 Toast.makeText(WelcomeActivity.this,
@@ -331,12 +342,9 @@ public class WelcomeActivity extends AppCompatActivity {
      * goto MainActivity and finish this activity
      */
     private void do_finishThisActivity() {
-        ProgressBar p = (ProgressBar) findViewById(R.id.progressBar);
-        p.setVisibility(p.GONE);
+        pbar.setVisibility(pbar.GONE);
         textView.setText("尽情享受吧");
-        textViewTitle.setText("New Feelings");
-        textViewTitle.setTextSize(32);
-        textViewTitle.setTextColor(Color.rgb(140, 21, 119));
+        //setAppName();
         final Intent it = new Intent(getApplication(), MainActivity.class); //你要转向的Activity
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
@@ -347,6 +355,11 @@ public class WelcomeActivity extends AppCompatActivity {
             }
         };
         timer.schedule(task, 1000 * 2);
+    }
+    private void setAppName() {
+        textViewTitle.setText("New Feelings");
+        textViewTitle.setTextSize(32);
+        textViewTitle.setTextColor(Color.rgb(140, 21, 119));
     }
 
     /**

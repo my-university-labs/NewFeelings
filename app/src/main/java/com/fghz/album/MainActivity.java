@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.ClipData;
 import android.content.ContentResolver;
@@ -78,13 +79,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Uri contentUri;
     private File newFile;
 
+    // notification
+    private int NOTI_CODE_HAVE_NEW = 1;
+    private int NOTI_CODE_CLASSIFYING = 2;
+    private int NOTI_CODE_FINISHED = 3;
+    private int NOTI_CODE_NEW_PHOTO = 4;
+    private NotificationManager manager;
+
     // actionBar
     public static android.support.v7.app.ActionBar actionBar;
     // fragment
     private FragmentTransaction fTransaction;
-
-    // tensorflow
-    // use static value in Config.java
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
@@ -92,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         actionBar = getSupportActionBar();
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         // fragment
@@ -100,6 +106,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         txt_photos.performClick();
 
         classifyImagesAtBackground();
+    }
+
+    private void sendMessages(String title, String message, int code) {
+        // show notification about tf information of image
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle(title)
+                        .setDefaults(NotificationCompat.DEFAULT_ALL)
+                        .setContentText(message);
+        mBuilder.setFullScreenIntent(null,true);
+        mBuilder.setAutoCancel(true);
+
+        manager.notify(code, mBuilder.build());
+    }
+
+    private void sendMessages(int now, int sum, int code) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.camera));
+        //禁止用户点击删除按钮删除
+        builder.setAutoCancel(false);
+        //禁止滑动删除
+        builder.setOngoing(true);
+        //取消右上角的时间显示
+        builder.setShowWhen(false);
+        if (now != sum)
+            builder.setContentTitle("正在新处理图片...   "+ now +"/" + sum);
+        else {
+            builder.setContentTitle("图片处理完成");
+            sendMessages("图片处理完成", "享受您的精彩之旅吧！", NOTI_CODE_FINISHED);
+        }
+        builder.setProgress(sum,now,false);
+        //builder.setContentInfo(progress+"%");
+        builder.setOngoing(true);
+        builder.setShowWhen(false);
+        //Intent intent = new Intent(this,DownloadService.class);
+        //intent.putExtra("command",1);
+        Notification notification = builder.build();
+        NotificationManager manger = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        manager.notify(code, notification);
     }
     // classify images at background
     private void classifyImagesAtBackground() {
@@ -120,8 +167,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Bitmap bitmap;
                     ContentValues value = new ContentValues();
                     MyDatabaseOperator myoperator = new MyDatabaseOperator(MainActivity.this, Config.DB_NAME, Config.dbversion);
+                    int now = 1;
+                    sendMessages("正在后台为您处理新的图片", "您可以到通知中心查看处理进度", NOTI_CODE_HAVE_NEW);
                     for (String image : Config.needToBeClassified) {
                         Log.d("classifyImages", image);
+                        sendMessages(now++, Config.needToBeClassified.size(), NOTI_CODE_CLASSIFYING);
                         BitmapFactory.Options options = new BitmapFactory.Options();
                         options.inPreferredConfig = Bitmap.Config.ARGB_4444;
                         bitmap = BitmapFactory.decodeFile(image, options);
@@ -182,7 +232,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 else {
                     startCamera();
                 }
-
                 break;
                 // 语音
             default:
@@ -225,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 打开相机获取图片
      */
     private void startCamera() {
-        File imagePath = new File(Environment.getExternalStorageDirectory(), "images");
+        File imagePath = new File(Environment.getExternalStorageDirectory(), "tmp");
         if (!imagePath.exists()) imagePath.mkdirs();
         newFile = new File(imagePath, "default_image.jpg");
         //第二参数是在manifest.xml定义 provider的authorities属性
@@ -262,6 +311,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //获取contentProvider图片
                 mInputPFD = contentProvider.openFileDescriptor(contentUri, "r");
                 final FileDescriptor fileDescriptor = mInputPFD.getFileDescriptor();
+
                 // new thread to deal image by tensorflow
                 new Thread(new Runnable() {
                     @Override
@@ -325,15 +375,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         db.close();
 
-        // show notification about tf information of image
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.a)
-                        .setContentTitle("新的照片")
-                        .setContentText(String.valueOf(results));
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(3, mBuilder.build());
+       sendMessages("新的图片", String.valueOf(results), NOTI_CODE_NEW_PHOTO);
 
     }
     // save image
@@ -367,6 +409,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Config.workdone = false;
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+            try {
+                File imagePath = new File(Environment.getExternalStorageDirectory(), "tmp");
+                newFile = new File(imagePath, "default_image.jpg");
+                newFile.delete();
+                Log.d("Delete", "True");
+            } catch(Exception e) {
+                Log.e("Delete", "Error");
             }
         }
         return fileName;
