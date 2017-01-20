@@ -42,6 +42,8 @@ import org.tensorflow.demo.Classifier;
 import org.tensorflow.demo.TensorFlowImageClassifier;
 
 import static com.fghz.album.utils.ImageDealer.dealImageForTF;
+import static com.fghz.album.utils.ImageDealer.do_tensorflow;
+import static com.fghz.album.utils.ImageDealer.insertImageIntoDB;
 
 /**
  * Created by dongchangzhang on 17-1-1.
@@ -60,6 +62,7 @@ public class WelcomeActivity extends AppCompatActivity {
     private int i = 0;
     private int size = 0;
     private TextView textView = null;
+    private TextView textViewTitle = null;
     private final String[] actions =  {
             "全部进入APP时处理", "全部后台处理", "根据图片数量决定"};
 
@@ -103,7 +106,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_welcome);
         textView = (TextView) findViewById(R.id.work_process);
-
+        textViewTitle = (TextView) findViewById(R.id.app_title);
         // init tensorflow
         if (Config.classifier == null) {
             // get permission
@@ -318,6 +321,7 @@ public class WelcomeActivity extends AppCompatActivity {
                 Config.needToBeClassified = new ArrayList<>();
                 Config.needToBeClassified.addAll(notBeClassifiedImages.subList(Config.imageNumber, notBeClassifiedImages.size()));
                 notBeClassifiedImages = notBeClassifiedImages.subList(0, Config.imageNumber);
+                classifyNewImages();
             }
         }
     }
@@ -329,9 +333,10 @@ public class WelcomeActivity extends AppCompatActivity {
     private void do_finishThisActivity() {
         ProgressBar p = (ProgressBar) findViewById(R.id.progressBar);
         p.setVisibility(p.GONE);
-        textView.setText("A Better Album");
-        textView.setTextSize(32);
-        textView.setTextColor(Color.rgb(140, 21, 119));
+        textView.setText("尽情享受吧");
+        textViewTitle.setText("New Feelings");
+        textViewTitle.setTextSize(32);
+        textViewTitle.setTextColor(Color.rgb(140, 21, 119));
         final Intent it = new Intent(getApplication(), MainActivity.class); //你要转向的Activity
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
@@ -361,7 +366,7 @@ public class WelcomeActivity extends AppCompatActivity {
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inPreferredConfig = Bitmap.Config.ARGB_4444;
                     bitmap = BitmapFactory.decodeFile(image, options);
-                    insertImageIntoDB(image, do_tensorflow(bitmap));
+                    insertImageIntoDB(image, do_tensorflow(bitmap), myoperator, value);
                 }
                 myoperator.close();
                 myHandler.sendEmptyMessage(0x24);
@@ -369,43 +374,4 @@ public class WelcomeActivity extends AppCompatActivity {
             }
         }).start();
     }
-    private void insertImageIntoDB(String image, List<Classifier.Recognition> results) {
-        List<Map> findResult;
-        for (Classifier.Recognition cr : results) {
-            String type = cr.getTitle();
-            // AlbumPhotos
-            value.clear();
-            value.put("album_name", type);
-            value.put("url", image);
-            myoperator.insert("AlbumPhotos", value);
-            // Album
-            findResult = myoperator.search("Album", "album_name = '" + type + "'");
-            if (findResult.size() == 0) {
-                value.clear();
-                value.put("album_name", type);
-                value.put("show_image", image);
-                myoperator.insert("Album", value);
-            }
-            //TFInfromation
-            value.clear();
-            value.put("url", image);
-            value.put("tf_type", type);
-            value.put("confidence", cr.getConfidence());
-            myoperator.insert("TFInformation", value);
-
-        }
-
-    }
-    /**
-     * use tf to classify the image
-     * @param bitmap
-     */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private List<Classifier.Recognition>  do_tensorflow(Bitmap bitmap) {
-        // resize image
-        Bitmap newbm = dealImageForTF(bitmap);
-        // get results
-        return Config.classifier.recognizeImage(newbm);
-    }
-
 }

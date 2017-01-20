@@ -42,7 +42,7 @@ public class Config {
     public static LruCache mImageCache;
 
     // how many
-    public static int imageNumber = 20;
+    public static int imageNumber = 12;
 
     public static List<String> needToBeClassified;
 

@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
@@ -50,6 +51,10 @@ import java.util.List;
 import com.fghz.album.dao.MyDatabaseHelper;
 
 import com.fghz.album.R;
+import com.fghz.album.dao.MyDatabaseOperator;
+
+import static com.fghz.album.utils.ImageDealer.do_tensorflow;
+import static com.fghz.album.utils.ImageDealer.insertImageIntoDB;
 
 /**
  * created by dongchangzhang
@@ -93,6 +98,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fManager = getFragmentManager();
         bindViews();
         txt_photos.performClick();
+
+        classifyImagesAtBackground();
+    }
+    // classify images at background
+    private void classifyImagesAtBackground() {
+        if (Config.needToBeClassified == null) {
+            // do nothing
+            Log.d("Main-TF", "null");
+        }
+        else if (Config.needToBeClassified.size() == 0) {
+            // do nothing
+            Log.d("Main-TF", "0");
+        }
+        else {
+            new Thread(new Runnable() {
+                @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+                @Override
+                public void run() {
+                    Looper.prepare();
+                    Bitmap bitmap;
+                    ContentValues value = new ContentValues();
+                    MyDatabaseOperator myoperator = new MyDatabaseOperator(MainActivity.this, Config.DB_NAME, Config.dbversion);
+                    for (String image : Config.needToBeClassified) {
+                        Log.d("classifyImages", image);
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inPreferredConfig = Bitmap.Config.ARGB_4444;
+                        bitmap = BitmapFactory.decodeFile(image, options);
+                        insertImageIntoDB(image, do_tensorflow(bitmap), myoperator, value);
+
+                    }
+                    Config.needToBeClassified = null;
+                    myoperator.close();
+                    Looper.loop();
+                }
+            }).start();
+        }
     }
     /**
      * ActionBar
@@ -208,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         intent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri);
-        startActivityForResult(intent, 1000);
+        startActivityForResult(intent, 1);
     }
     // 接受拍照的结果
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
