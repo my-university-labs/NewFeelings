@@ -22,7 +22,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
@@ -48,6 +50,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import com.fghz.album.dao.MyDatabaseHelper;
 
@@ -90,6 +93,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static android.support.v7.app.ActionBar actionBar;
     // fragment
     private FragmentTransaction fTransaction;
+
+    private boolean havaInAlbum = false;
+    private boolean haveInMemory = false;
+
+
+    private Handler myHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                // scanning images
+                case 0x11:
+                    albums.onRefresh();
+                    break;
+                case 0x22:
+                    memory.onRefresh();
+                    break;
+
+            }
+        }
+    };
+
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
@@ -171,11 +195,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     sendMessages("正在后台为您处理新的图片", "您可以到通知中心查看处理进度", NOTI_CODE_HAVE_NEW);
                     for (String image : Config.needToBeClassified) {
                         Log.d("classifyImages", image);
+
+
+
                         sendMessages(now++, Config.needToBeClassified.size(), NOTI_CODE_CLASSIFYING);
                         BitmapFactory.Options options = new BitmapFactory.Options();
                         options.inPreferredConfig = Bitmap.Config.ARGB_4444;
                         bitmap = BitmapFactory.decodeFile(image, options);
                         insertImageIntoDB(image, do_tensorflow(bitmap), myoperator, value);
+                        if (havaInAlbum) {
+                            myHandler.sendEmptyMessage(0x11);
+                        }
+                        if (haveInMemory) {
+                            myHandler.sendEmptyMessage(0x22);
+                        }
 
                     }
                     Config.needToBeClassified = null;
@@ -495,9 +528,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }else{
                     fTransaction.show(memory);
                 }
+                haveInMemory = true;
                 break;
             // 相册
             case R.id.all_albums:
+
                 // same as photos
                 actionBar.setDisplayHomeAsUpEnabled(false);
                 actionBar.setTitle("相册");
@@ -509,8 +544,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     albums = new Albums();
                     fTransaction.add(R.id.ly_content,albums);
                 }else{
+                    albums.onRefresh();
                     fTransaction.show(albums);
                 }
+                havaInAlbum = true;
                 break;
         }
         fTransaction.commit();

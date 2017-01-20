@@ -3,7 +3,9 @@ package com.fghz.album;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +34,7 @@ public class Albums extends Fragment {
     private String content;
     private FragmentManager manager;
     private FragmentTransaction ft;
+    private AlbumAdapter adapter;
 
 
     public Albums() {
@@ -42,13 +45,14 @@ public class Albums extends Fragment {
 
     private List<Map<String, String>> result;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fg_albums,container,false);
         initAlbums();
         GridView listView = (GridView) view.findViewById(com.fghz.album.R.id.album_list);
         manager = getFragmentManager();
-        AlbumAdapter adapter = new AlbumAdapter(getActivity(), R.layout.album_item, albumList);
+        adapter = new AlbumAdapter(getActivity(), R.layout.album_item, albumList);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
@@ -79,6 +83,7 @@ public class Albums extends Fragment {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void initAlbums() {
         AlbumItem album;
         if (getContext() == null)
@@ -89,6 +94,12 @@ public class Albums extends Fragment {
             albumList.add(album);
         }
 
+    }
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void onRefresh() {
+        albumList.clear();
+        initAlbums();
+        adapter.notifyDataSetChanged();
     }
 }
 

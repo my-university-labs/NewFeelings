@@ -165,6 +165,7 @@ public class Photos extends Fragment {
                 photoList.clear();
                 // get photo
                 initPhoto();
+
                 Log.d("rescan image: ", "finished");
 
             } catch (Exception e) {
@@ -178,7 +179,7 @@ public class Photos extends Fragment {
             // TODO Auto-generated method stub
             Log.d("update gridview: ", "start");
             // update photo list
-            adapter.setMImageList(photoList);
+            adapter.notifyDataSetChanged();
         }
     }
 

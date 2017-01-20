@@ -25,6 +25,7 @@ import static com.fghz.album.utils.ImagesScaner.getAlbumInfo;
  */
 
 public class Memory extends Fragment {
+    private MemoryAdapter adapter;
     private List<Map<String, String>> result;
     public Memory() {
 
@@ -37,7 +38,7 @@ public class Memory extends Fragment {
         GridView gridView = (GridView) view.findViewById(R.id.memory_list);
         initMemory();
 
-        MemoryAdapter adapter = new MemoryAdapter(getActivity(), R.layout.memory_item, memoryList);
+        adapter = new MemoryAdapter(getActivity(), R.layout.memory_item, memoryList);
 
         gridView.setAdapter(adapter);
 
@@ -60,6 +61,7 @@ public class Memory extends Fragment {
     private void initMemory() {
         MemoryItem memory;
         result = getAlbumInfo(getContext());
+        if (result.size() == 0) return;
         memory = new MemoryItem(result.get(0).get("show_image"), "全部图片");
         memoryList.add(memory);
 
@@ -67,6 +69,11 @@ public class Memory extends Fragment {
             memory = new MemoryItem(s.get("show_image"), s.get("album_name"));
             memoryList.add(memory);
         }
+    }
+    public void onRefresh() {
+        memoryList.clear();
+        initMemory();
+        adapter.notifyDataSetChanged();
     }
 }
 
