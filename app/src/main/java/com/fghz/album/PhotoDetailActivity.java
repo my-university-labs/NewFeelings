@@ -3,14 +3,21 @@ package com.fghz.album;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,6 +25,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import com.bumptech.glide.Glide;
 import com.fghz.album.adapter.HorizontalScrollViewAdapter;
 import com.fghz.album.view.MyHorizontalScrollView;
 import com.fghz.album.view.MyHorizontalScrollView.CurrentImageChangeListener;
@@ -52,6 +60,8 @@ public class PhotoDetailActivity extends AppCompatActivity /*implements View.OnC
     private ImageView mImg;
     // 照片数组。照片在drawable文件夹中，名字为a.png ...
     private List<Map> mDatas ;
+
+    private PhotoViewAttacher mAttacher;
     // which image
     int position_now = -1;
     // image url
@@ -59,6 +69,33 @@ public class PhotoDetailActivity extends AppCompatActivity /*implements View.OnC
     // has been init
     boolean init = false;
     private String type = null;
+
+    private int position_tmp;
+
+    private Handler myHandler = new Handler()
+    {
+        @Override
+        //重写handleMessage方法,根据msg中what的值判断是否执行后续操作
+        public void handleMessage(Message msg) {
+            switch (msg.what)
+            {
+                case 0x21:
+
+                    Glide
+                            .with(PhotoDetailActivity.this)
+                            .load((String) mDatas.get(position_tmp).get("_data"))
+                            .error(R.drawable.error)
+                            .thumbnail(0.1f)
+                            .into(mImg);
+
+                    break;
+
+                case 0x22:
+
+                    break;
+            }
+        }
+    };
 
     public PhotoDetailActivity() {
 
@@ -68,9 +105,14 @@ public class PhotoDetailActivity extends AppCompatActivity /*implements View.OnC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.fg_detail);
+//        getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
+
+//        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#11000000")));
+//        getSupportActionBar().setSplitBackgroundDrawable(new ColorDrawable(Color.parseColor("#11000000")));
         // 绑定textview按钮
 //        bindViews();
         // get photo list
@@ -81,7 +123,9 @@ public class PhotoDetailActivity extends AppCompatActivity /*implements View.OnC
         else
             mDatas = getMediaImageInfo(this.getBaseContext());
         mImg = (ImageView) findViewById(R.id.id_content);
-        PhotoViewAttacher mAttacher = new PhotoViewAttacher(mImg);
+//        mAttacher = new PhotoViewAttacher(mImg);
+        Glide.with(PhotoDetailActivity.this).load((String) mDatas.get(position_now).get("_data")).into(mImg);
+
         mHorizontalScrollView = (MyHorizontalScrollView) findViewById(R.id.id_horizontalScrollView);
         mAdapter = new HorizontalScrollViewAdapter(this, mDatas);
         //添加滚动回调
@@ -98,7 +142,8 @@ public class PhotoDetailActivity extends AppCompatActivity /*implements View.OnC
                         }
                         Log.d("PhotoDetail: ", "Image change to: " + position);
                         try {
-                            mImg.setImageURI(Uri.fromFile(new File((String) mDatas.get(position).get("_data"))));
+                            position_tmp = position;
+                            myHandler.sendEmptyMessage(0x21);
                         } catch (Exception e) {
                             ;
                         }

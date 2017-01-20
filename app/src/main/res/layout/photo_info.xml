@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:gravity="center_horizontal">
 
-        <com.fghz.album.view.CircleImageView
+        <ImageView
             android:id="@+id/photo_target"
             android:layout_width="210dp"
             android:layout_height="210dp"

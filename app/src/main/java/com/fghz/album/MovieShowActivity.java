@@ -20,11 +20,13 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.bumptech.glide.Glide;
 import com.fghz.album.entity.PhotoItem;
 
 import static com.fghz.album.utils.ImagesScaner.getAlbumPhotos;
 import static com.fghz.album.utils.ImagesScaner.getMediaImageInfo;
 import com.fghz.album.R;
+import com.fghz.album.view.GlideRoundTransform;
 
 /**
  * Created by me on 17-1-4.
@@ -47,7 +49,13 @@ public class MovieShowActivity extends AppCompatActivity {
             {
                 case 0x24:
                     try {
-                        iv.setImageURI(Uri.fromFile(new File((String) photoList.get(count % photoList.size()).getImageId())));
+                        Glide
+                                .with(MovieShowActivity.this)
+                                .load(photoList.get(count % photoList.size()).getImageId())
+                                .error(R.drawable.error)
+                                .crossFade()
+                                .thumbnail(0.1f)
+                                .into(iv);
                     }  catch (Exception e) {
                         ;
                     }
@@ -78,7 +86,7 @@ public class MovieShowActivity extends AppCompatActivity {
         getMessage();
         initPhoto();
         timer = new Timer();
-        timer.schedule(task, 10, 1500);
+        timer.schedule(task, 10, 3500);
         iv = (ImageView) findViewById(R.id.movie_image);
 //        new Thread(new Runnable() {
 //            @Override

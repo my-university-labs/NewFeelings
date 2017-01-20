@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import java.util.List;
 import java.util.Map;
 
+import com.bumptech.glide.Glide;
 import com.fghz.album.Config;
 import com.fghz.album.R;
 
@@ -72,60 +73,26 @@ public class HorizontalScrollViewAdapter extends BaseAdapter
     @Override
     public View getView(int position, View convertView, ViewGroup parent)
     {
-        Log.d("Horizontal: ", "position " + position);
-        ViewHolder viewHolder = null;
         if (convertView == null)
         {
-            viewHolder = new ViewHolder();
             convertView = mInflater.inflate(
                     R.layout.gallery_item, parent, false);
-            viewHolder.mImg = (ImageView) convertView
-                    .findViewById(R.id.id_index_gallery_item_image);
-
-
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
         }
+        ImageView myImageView = (ImageView) convertView
+                .findViewById(R.id.id_index_gallery_item_image);
         try {
             url = (String) mDatas.get(position).get("_data");
-            Bitmap bitmap = (Bitmap) Config.mImageCache.get(url);
-
-            if (bitmap != null) {
-                ;
-            } else {
-                loadThumBitmap(url);
-                bitmap = (Bitmap) Config.mImageCache.get(url);
-            }
-
-            viewHolder.mImg.setImageBitmap(bitmap);
+            Glide
+                    .with(mContext)
+                    .load(url)
+                    .centerCrop()
+                    .error(R.drawable.error)
+                    .crossFade()
+                    .thumbnail(0.1f).into(myImageView);
         } catch (Exception e) {
-            viewHolder.mImg.setImageResource(R.drawable.none);
+
         }
         return convertView;
     }
-
-    private class ViewHolder
-    {
-        ImageView mImg;
-    }
-    private void loadThumBitmap(final String url) {
-        Bitmap bitmap = getBitmap(mContext,url);
-        if (bitmap != null) {
-            ;
-        } else {
-            try {
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig = Bitmap.Config.ARGB_4444;
-                bitmap = BitmapFactory.decodeFile(url, options);
-                bitmap = extractThumbnail(bitmap,180 , 180);
-            } catch (Exception e) {
-                Log.d("Error: " , " " + e);
-            }
-        }
-        Config.mImageCache.put(url, bitmap);
-        notifyDataSetChanged();
-    }
-
 }
 

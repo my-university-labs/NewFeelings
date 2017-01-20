@@ -60,7 +60,7 @@ public class Memory extends Fragment {
     }
     private void initMemory() {
         MemoryItem memory;
-        result = getAlbumInfo(getContext());
+        result = getAlbumInfo(getActivity().getApplicationContext());
         if (result.size() == 0) return;
         memory = new MemoryItem(result.get(0).get("show_image"), "全部图片");
         memoryList.add(memory);

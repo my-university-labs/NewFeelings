@@ -83,19 +83,19 @@ public class Albums extends Fragment {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+
     private void initAlbums() {
         AlbumItem album;
-        if (getContext() == null)
+        if (getActivity().getApplicationContext() == null)
             Log.d("getContext() in Album", "null");
-        result = getAlbumInfo(getContext());
+        result = getAlbumInfo(getActivity().getApplicationContext());
         for (Map<String, String> s: result) {
              album = new AlbumItem(s.get("album_name"), s.get("show_image"));
             albumList.add(album);
         }
 
     }
-    @RequiresApi(api = Build.VERSION_CODES.M)
+
     public void onRefresh() {
         albumList.clear();
         initAlbums();

@@ -25,8 +25,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import com.bumptech.glide.Glide;
 import com.fghz.album.adapter.PhotoTypeAdapter;
 import com.fghz.album.R;
+import com.fghz.album.view.GlideRoundTransform;
 
 
 /**
@@ -68,7 +70,18 @@ public class PhotoInfoActivity extends AppCompatActivity {
         dealImage();
         // set image
         ImageView iv = (ImageView) findViewById(R.id.photo_target);
-        iv.setImageURI(Uri.fromFile(new File(url)));
+        Log.d("URL", url);
+        Glide
+                .with(PhotoInfoActivity.this)
+                .load(url)
+                .centerCrop()
+                .error(R.drawable.error)
+                .crossFade()
+                .centerCrop()
+                .thumbnail(0.1f)
+                .transform(new GlideRoundTransform(PhotoInfoActivity.this))
+                .into(iv);
+
         // when tf work done, use this class to update UI
         new UpdateListView().execute();
     }

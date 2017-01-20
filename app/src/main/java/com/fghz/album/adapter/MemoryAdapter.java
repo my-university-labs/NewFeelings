@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import com.bumptech.glide.Glide;
 import com.fghz.album.Config;
 import com.fghz.album.R;
 import com.fghz.album.entity.MemoryItem;
@@ -30,113 +31,39 @@ import static com.fghz.album.utils.ImagesScaner.getBitmap;
 
 public class MemoryAdapter extends ArrayAdapter<MemoryItem> {
     private int resourceId;
-    boolean mBusy = false;
-    private Handler myHandler = new Handler()
-    {
-        @Override
-        //重写handleMessage方法,根据msg中what的值判断是否执行后续操作
-        public void handleMessage(Message msg) {
-            switch (msg.what)
-            {
-                case 0x24:
-                    Log.d("change", "y");
-                    notifyDataSetChanged();
-                    break;
-            }
-        }
-    };
+    private Context context;
     public MemoryAdapter(Context context, int textViewResourceId,
                          List<MemoryItem> objects) {
         super(context, textViewResourceId, objects);
         resourceId = textViewResourceId;
+        this.context = context;
     }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        try {
+
             final MemoryItem memory = getItem(position);
 
-            // 保存当前信息
-            AlbumAdapter.ViewHolder holder = null;
+
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(resourceId, null);
-                holder = new AlbumAdapter.ViewHolder();
-                holder.iv_thumbnail = (ImageView) convertView.findViewById(R.id.memory_photo);
-                holder.thumbnail_url = memory.getImageId();
-                holder.albumName = (TextView) convertView.findViewById(R.id.memory_title);
 
 
-//                holder.albumName = (TextView) convertView.findViewById(R.id.album_name);
-//                holder.albumName.setText(album.getName());
-                convertView.setTag(holder);
-            } else {
-                holder = (AlbumAdapter.ViewHolder) convertView.getTag();
-                if (!holder.thumbnail_url.equals(memory.getImageId())) {
-                    holder.iv_thumbnail.setImageResource(R.drawable.loading);
-                }
-            }
-            if (!isBusy()) {
-                final String imgUrl = memory.getImageId();
-                final Bitmap[] bmp = {(Bitmap) Config.mImageCache.get(imgUrl)};
-                if (bmp[0] != null) {
-                    ;
-                } else {
-                    try {
-//                    holder.iv_thumbnail.setImageResource(R.drawable.b);
-
-                        setBusy(true);
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Looper.prepare();
-                                loadThumBitmap(imgUrl);
-                                bmp[0] = (Bitmap) Config.mImageCache.get(imgUrl);
-                                Looper.loop();
-                            }
-                        }).start();
-                        setBusy(false);
-
-                    } catch (Exception e) {
-                        Log.d("Error:", "" + e);
-                    }
-                }
-                holder.iv_thumbnail.setImageBitmap(bmp[0]);
-                holder.albumName.setText(memory.getType());
 
             }
+        ImageView myImageView = (ImageView) convertView.findViewById(R.id.memory_photo);
+        TextView albumName = (TextView) convertView.findViewById(R.id.memory_title);
+                final String url = memory.getImageId();
+        albumName.setText(memory.getType());
+        Glide
+                .with(context)
+                .load(url)
+                .centerCrop()
+                .error(R.drawable.error)
+                .crossFade()
+                .thumbnail(0.1f)
+                .into(myImageView);
 
-        } catch (Exception e) {
-            ;
-        }
         return convertView;
     }
-    //用来保存各个控件的引用
-    static class ViewHolder {
-        ImageView iv_thumbnail;
-        String thumbnail_url;
-        TextView albumName;
-    }
-    private void loadThumBitmap(final String url) {
-        Bitmap bitmap = getBitmap(getContext(),url);
-        if (bitmap != null) {
-            ;
-        } else {
-            try {
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig = Bitmap.Config.ARGB_4444;
-                bitmap = BitmapFactory.decodeFile(url, options);
-                bitmap = extractThumbnail(bitmap,180 , 180);
-            } catch (Exception e) {
-                Log.d("Error: " , " " + e);
-            }
-        }
-        Config.mImageCache.put(url, bitmap);
-        myHandler.sendEmptyMessage(0x24);
-    }
-    public boolean isBusy() {
-        return mBusy;
-    }
 
-    public void setBusy(boolean busy) {
-        this.mBusy = busy;
-    }
 }

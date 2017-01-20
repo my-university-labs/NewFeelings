@@ -17,6 +17,7 @@ import android.widget.ImageView;
 
 import java.util.List;
 
+import com.bumptech.glide.Glide;
 import com.fghz.album.Config;
 import com.fghz.album.R;
 import com.fghz.album.entity.PhotoItem;
@@ -30,159 +31,39 @@ import static com.fghz.album.utils.ImagesScaner.getBitmap;
  */
 public class PhotoAdapter extends ArrayAdapter<PhotoItem> {
     private int resourceId;
-    LayoutInflater mInflater;
+
     List<PhotoItem> mImageList;
-    boolean mBusy = false;
-    private Handler myHandler = new Handler()
-    {
-        @Override
-        //重写handleMessage方法,根据msg中what的值判断是否执行后续操作
-        public void handleMessage(Message msg) {
-            switch (msg.what)
-            {
-                case 0x24:
-                    Log.d("change", "y");
-                    notifyDataSetChanged();
+    private Context context;
 
-                    break;
-
-                case 0x123:
-
-                    break;
-            }
-        }
-    };
-
-    public void setMImageList(List<PhotoItem> mImageList) {
-        this.mImageList = mImageList;
-    }
     public PhotoAdapter(Context context, int textViewResourceId,
                         List<PhotoItem> objects) {
         super(context, textViewResourceId, objects);
-        mInflater = LayoutInflater.from(context);
-        if (Config.mImageCache == null) {
-            final int memClass = ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass();
-            final int maxSize = 1024 * 1024 * memClass / 8;
-            Config.mImageCache = new LruCache(maxSize) {
-                protected int sizeOf(String key, Bitmap value) {
-                    // TODO 自动生成的方法存根
-                    return value.getByteCount();
-                }
-            };
-        }
+
+        this.context = context;
         mImageList = objects;
         resourceId = textViewResourceId;
     }
-    @Override
-    public int getCount() {
-        // TODO 自动生成的方法存根
-        return mImageList.size();
-    }
 
-    @Override
-    public PhotoItem getItem(int position) {
-        // TODO 自动生成的方法存根
-        return mImageList.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        // TODO 自动生成的方法存根
-        return position;
-    }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // 获取当前项的item实例
-        try {
-            final PhotoItem photo = getItem(position);
-
-            // 保存当前信息
-            ViewHolder holder = null;
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(resourceId, null);
-                holder = new ViewHolder();
-                holder.iv_thumbnail = (ImageView) convertView.findViewById(R.id.photo_small);
-                holder.thumbnail_url = photo.getImageId();
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-                if (!holder.thumbnail_url.equals(photo.getImageId())) {
-                    holder.iv_thumbnail.setImageResource(R.drawable.loading);
-                }
-            }
-            if (!isBusy()) {
-                final String imgUrl = photo.getImageId();
-                final Bitmap[] bmp = {(Bitmap) Config.mImageCache.get(imgUrl)};
-                if (bmp[0] != null) {
-                    ;
-                } else {
-                    try {
-//                    holder.iv_thumbnail.setImageResource(R.drawable.b);
-
-                        setBusy(true);
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Looper.prepare();
-                        loadThumBitmap(imgUrl);
-                        bmp[0] = (Bitmap) Config.mImageCache.get(imgUrl);
-                                Looper.loop();
-                            }
-                        }).start();
-                        setBusy(false);
-
-                    } catch (Exception e) {
-                        Log.d("Error:", "" + e);
-                    }
-                }
-                holder.iv_thumbnail.setImageBitmap(bmp[0]);
-
-            }
-
-        } catch (Exception e) {
-            ;
+        final PhotoItem photo = getItem(position);
+        ImageView myImageView = null;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(resourceId, null);
         }
+
+        myImageView = (ImageView) convertView.findViewById(R.id.photo_small);
+        String url = photo.getImageId();
+        Glide
+                .with(context)
+                .load(url)
+                .centerCrop()
+                .error(R.drawable.error)
+                .crossFade()
+                .thumbnail(0.1f).into(myImageView);
         return convertView;
     }
-    private void loadThumBitmap(final String url) {
-        Bitmap bitmap = getBitmap(getContext(),url);
-        if (bitmap != null) {
-            ;
-        } else {
-            try {
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig = Bitmap.Config.ARGB_4444;
-                bitmap = BitmapFactory.decodeFile(url, options);
-                bitmap = extractThumbnail(bitmap,180 , 180);
-            } catch (Exception e) {
-                Log.d("Error: " , " " + e);
-            }
-        }
-        Config.mImageCache.put(url, bitmap);
-        myHandler.sendEmptyMessage(0x24);
-    }
-    @Override
-    public int getItemViewType(int position) {
-        // TODO 自动生成的方法存根
-        return super.getItemViewType(position);
-    }
-    @Override
-    public int getViewTypeCount() {
-        // TODO 自动生成的方法存根
-        return super.getViewTypeCount();
-    }
-    //用来保存各个控件的引用
-    static class ViewHolder {
-        ImageView iv_thumbnail;
-        String thumbnail_url;
-    }
-    public boolean isBusy() {
-        return mBusy;
-    }
 
-    public void setBusy(boolean busy) {
-        this.mBusy = busy;
-    }
 
 }
 

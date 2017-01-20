@@ -118,7 +118,7 @@ public class Photos extends Fragment {
         PhotoItem photo;
         if (type == null) {
             final List<Map> mediaImageInfo;
-            mediaImageInfo = getMediaImageInfo(getContext());
+            mediaImageInfo = getMediaImageInfo(getActivity().getApplicationContext());
 
             for (Map<String, String> map : mediaImageInfo) {
                 // in this map, the key of url is _data
@@ -154,7 +154,7 @@ public class Photos extends Fragment {
                 // update db
 
 
-                updateGallery(getContext(), fileName);
+                updateGallery(getActivity().getApplicationContext(), fileName);
 
                 // we don't know the time when update db is end (it works in another thread)
                 // so now i set a time to wait it finished (it is a bad way)
