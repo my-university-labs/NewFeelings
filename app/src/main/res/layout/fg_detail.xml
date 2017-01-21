@@ -19,6 +19,8 @@
             />
     </FrameLayout>
 
+
+
     <com.fghz.album.view.MyHorizontalScrollView
         android:id="@+id/id_horizontalScrollView"
         android:layout_width="wrap_content"

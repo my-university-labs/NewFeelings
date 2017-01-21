@@ -174,8 +174,16 @@ public class WelcomeActivity extends AppCompatActivity {
                 prepareForApplication();
             } else {
                 Toast.makeText(WelcomeActivity.this,
-                        "Sorry, Application Can not work without permission",
+                        "对不起，不能访问存储卡我不能继续工作！",
                         Toast.LENGTH_LONG).show();
+                Timer timer = new Timer();
+                TimerTask task = new TimerTask() {
+                    @Override
+                    public void run() {
+                        WelcomeActivity.this.finish();
+                    }
+                };
+                timer.schedule(task, 1000 * 2);
             }
         }
     }

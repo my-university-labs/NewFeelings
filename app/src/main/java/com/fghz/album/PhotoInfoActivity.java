@@ -75,6 +75,7 @@ public class PhotoInfoActivity extends AppCompatActivity {
                 .with(PhotoInfoActivity.this)
                 .load(url)
                 .centerCrop()
+                .placeholder(R.drawable.loading)
                 .error(R.drawable.error)
                 .crossFade()
                 .centerCrop()

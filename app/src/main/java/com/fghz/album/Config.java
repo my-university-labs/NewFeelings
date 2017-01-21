@@ -64,7 +64,7 @@ public class Config {
             R.drawable.building, R.drawable.car,R.drawable.flower,
             R.drawable.group_people, R.drawable.manga, R.drawable.people,
             R.drawable.scenery, R.drawable.snow,R.drawable.text,
-            R.drawable.things,R.drawable.room,R.drawable.room, R.drawable.a
+            R.drawable.things,R.drawable.room,R.drawable.room
     };
     public static boolean task_finished = false;
 }

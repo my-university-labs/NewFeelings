@@ -190,9 +190,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Looper.prepare();
                     Bitmap bitmap;
                     ContentValues value = new ContentValues();
-                    MyDatabaseOperator myoperator = new MyDatabaseOperator(MainActivity.this, Config.DB_NAME, Config.dbversion);
+                    MyDatabaseOperator myoperator = new MyDatabaseOperator(MainActivity.this,
+                            Config.DB_NAME, Config.dbversion);
                     int now = 1;
-                    sendMessages("正在后台为您处理新的图片", "您可以到通知中心查看处理进度", NOTI_CODE_HAVE_NEW);
+                    sendMessages("正在为您处理" + Config.needToBeClassified.size()
+                            +  "张新的图片", "您可以到通知中心查看处理进度", NOTI_CODE_HAVE_NEW);
                     for (String image : Config.needToBeClassified) {
                         Log.d("classifyImages", image);
 
@@ -297,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startCamera();
             } else {
                 Toast.makeText(MainActivity.this,
-                        "Sorry, Application Can not work without permission",
+                        "对不起，我需要相机的权限！",
                         Toast.LENGTH_LONG).show();
             }
         }

@@ -40,30 +40,35 @@ public class MemoryAdapter extends ArrayAdapter<MemoryItem> {
     }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
-            final MemoryItem memory = getItem(position);
-
-
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(resourceId, null);
-
-
-
-            }
-        ImageView myImageView = (ImageView) convertView.findViewById(R.id.memory_photo);
-        TextView albumName = (TextView) convertView.findViewById(R.id.memory_title);
-                final String url = memory.getImageId();
-        albumName.setText(memory.getType());
+        ViewHolder holder;
+        final MemoryItem memory = getItem(position);
+        if (convertView == null) {
+            holder = new ViewHolder();
+            convertView = LayoutInflater.from(getContext()).inflate(resourceId, null);
+            holder.img = (ImageView) convertView.findViewById(R.id.memory_photo);
+            holder.tv = (TextView) convertView.findViewById(R.id.memory_title);
+            convertView.setTag(holder);
+        }
+        else {
+            holder = (ViewHolder)convertView.getTag();
+        }
+        final String url = memory.getImageId();
+        holder.tv.setText(memory.getType());
         Glide
                 .with(context)
                 .load(url)
                 .centerCrop()
+                .placeholder(R.drawable.loading)
                 .error(R.drawable.error)
                 .crossFade()
                 .thumbnail(0.1f)
-                .into(myImageView);
-
+                .into(holder.img);
         return convertView;
+    }
+    private static class ViewHolder
+    {
+        public ImageView img;
+        public TextView tv;
     }
 
 }

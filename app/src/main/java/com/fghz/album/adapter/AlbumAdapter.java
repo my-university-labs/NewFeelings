@@ -1,12 +1,6 @@
 package com.fghz.album.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +11,10 @@ import android.widget.TextView;
 import java.util.List;
 
 import com.bumptech.glide.Glide;
-import com.fghz.album.Config;
 import com.fghz.album.R;
 import com.fghz.album.entity.AlbumItem;
+import com.fghz.album.view.GlideRoundTransform;
 
-import static android.media.ThumbnailUtils.extractThumbnail;
-import static com.fghz.album.utils.ImagesScaner.getBitmap;
 
 /**
  * 相册的适配器
@@ -41,26 +33,38 @@ public class AlbumAdapter extends ArrayAdapter<AlbumItem> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
+        ViewHolder holder;
         final AlbumItem album = getItem(position);
 
         if (convertView == null) {
+            holder = new ViewHolder();
             convertView = LayoutInflater.from(getContext()).inflate(resourceId, null);
-
-
+            holder.img = (ImageView) (ImageView) convertView.findViewById(R.id.album_image);
+            holder.tv = (TextView) convertView.findViewById(R.id.album_name);
+            convertView.setTag(holder);
         }
-        TextView albumName = (TextView) convertView.findViewById(R.id.album_name);
-        albumName.setText(album.getName());
-        ImageView myImageView = (ImageView) convertView.findViewById(R.id.album_image);
+        else {
+            holder = (ViewHolder)convertView.getTag();
+        }
+        holder.tv.setText(album.getName());
 
         String url = album.getImageId();
         Glide
                 .with(context)
                 .load(url)
                 .centerCrop()
+                .placeholder(R.drawable.loading)
                 .error(R.drawable.error)
                 .crossFade()
-                .thumbnail(0.1f).into(myImageView);
+                .transform(new GlideRoundTransform(context))
+                .thumbnail(0.1f).into(holder.img);
         return convertView;
     }
+    private static class ViewHolder
+    {
+        public ImageView img;
+        public TextView tv;
+    }
+
 
 }

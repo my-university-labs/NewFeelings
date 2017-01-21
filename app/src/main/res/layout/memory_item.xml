@@ -1,8 +1,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:gravity="center">
     <com.fghz.album.view.SquareLayout
         android:id="@+id/layout_icon"
+        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
     <ImageView
@@ -13,9 +15,10 @@
          />
         <TextView
             android:text="TextView"
+            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="40sp"
+            android:textSize="30sp"
             android:textColor="@color/bg_white"
             android:id="@+id/memory_title" />
     </com.fghz.album.view.SquareLayout>

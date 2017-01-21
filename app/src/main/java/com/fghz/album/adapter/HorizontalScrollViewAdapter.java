@@ -40,16 +40,6 @@ public class HorizontalScrollViewAdapter extends BaseAdapter
         this.mContext = context;
         mInflater = LayoutInflater.from(context);
         this.mDatas = mDatas;
-        if (Config.mImageCache == null) {
-            final int memClass = ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass();
-            final int maxSize = 1024 * 1024 * memClass / 8;
-            Config.mImageCache = new LruCache(maxSize) {
-                protected int sizeOf(String key, Bitmap value) {
-                    // TODO 自动生成的方法存根
-                    return value.getByteCount();
-                }
-            };
-        }
     }
 
     @Override
@@ -86,9 +76,11 @@ public class HorizontalScrollViewAdapter extends BaseAdapter
                     .with(mContext)
                     .load(url)
                     .centerCrop()
+                    .placeholder(R.drawable.loading)
                     .error(R.drawable.error)
                     .crossFade()
-                    .thumbnail(0.1f).into(myImageView);
+                    .thumbnail(0.1f)
+                    .into(myImageView);
         } catch (Exception e) {
 
         }

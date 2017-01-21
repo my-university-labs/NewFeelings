@@ -7,7 +7,8 @@
 
 
     <string name="tab_menu_photos">照片</string>
-    <string name="tab_menu_memory">回忆</string>
+    <string name="tab_menu_type">助手</string>
+    <string name="tab_menu_memory">故事</string>
     <string name="tab_menu_albums">相册</string>
     <string name="message">相簿</string>
     <string name="back">返回</string>

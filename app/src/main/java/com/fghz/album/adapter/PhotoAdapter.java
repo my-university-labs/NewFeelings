@@ -46,22 +46,31 @@ public class PhotoAdapter extends ArrayAdapter<PhotoItem> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
         final PhotoItem photo = getItem(position);
-        ImageView myImageView = null;
         if (convertView == null) {
+            holder = new ViewHolder();
             convertView = LayoutInflater.from(getContext()).inflate(resourceId, null);
+            holder.img = (ImageView) convertView.findViewById(R.id.photo_small);
+            convertView.setTag(holder);
         }
-
-        myImageView = (ImageView) convertView.findViewById(R.id.photo_small);
+        else {
+            holder = (ViewHolder)convertView.getTag();
+        }
         String url = photo.getImageId();
         Glide
                 .with(context)
                 .load(url)
                 .centerCrop()
+                .placeholder(R.drawable.loading)
                 .error(R.drawable.error)
                 .crossFade()
-                .thumbnail(0.1f).into(myImageView);
+                .thumbnail(0.1f).into(holder.img);
         return convertView;
+    }
+    private static class ViewHolder
+    {
+        public ImageView img;
     }
 
 
