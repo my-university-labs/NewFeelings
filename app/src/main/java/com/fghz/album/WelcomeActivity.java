@@ -59,6 +59,9 @@ public class WelcomeActivity extends AppCompatActivity {
     private ContentValues value;
     private MyDatabaseOperator myoperator;
 
+    private TensorFlowImageClassifier classifier;
+
+
     private int i = 0;
     private int size = 0;
     private TextView textView = null;
@@ -115,18 +118,7 @@ public class WelcomeActivity extends AppCompatActivity {
         pbar = (ProgressBar) findViewById(R.id.progressBar);
         pbar.setVisibility(pbar.GONE);
         setAppName();
-        // init tensorflow
-        if (Config.classifier == null) {
-            // get permission
-            Config.classifier = new TensorFlowImageClassifier();
-            try {
-                Config.classifier.initializeTensorFlow(
-                        getAssets(), Config.MODEL_FILE, Config.LABEL_FILE, Config.NUM_CLASSES, Config.INPUT_SIZE, Config.IMAGE_MEAN, Config.IMAGE_STD,
-                        Config.INPUT_NAME, Config.OUTPUT_NAME);
-            } catch (final IOException e) {
-                ;
-            }
-        }
+
         if (Build.VERSION.SDK_INT >= 23) {
             // check permission
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -379,6 +371,19 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void run() {
             Looper.prepare();
+                // init tensorflow
+                if (classifier == null) {
+                    // get permission
+                    classifier = new TensorFlowImageClassifier();
+                    try {
+                        classifier.initializeTensorFlow(
+                                getAssets(), Config.MODEL_FILE, Config.LABEL_FILE,
+                                Config.NUM_CLASSES, Config.INPUT_SIZE, Config.IMAGE_MEAN,
+                                Config.IMAGE_STD, Config.INPUT_NAME, Config.OUTPUT_NAME);
+                    } catch (final IOException e) {
+
+                    }
+                }
                 Bitmap bitmap;
                 value = new ContentValues();
                 myoperator = new MyDatabaseOperator(WelcomeActivity.this, Config.DB_NAME, Config.dbversion);
@@ -387,7 +392,7 @@ public class WelcomeActivity extends AppCompatActivity {
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inPreferredConfig = Bitmap.Config.ARGB_4444;
                     bitmap = BitmapFactory.decodeFile(image, options);
-                    insertImageIntoDB(image, do_tensorflow(bitmap), myoperator, value);
+                    insertImageIntoDB(image, do_tensorflow(bitmap, classifier), myoperator, value);
                 }
                 myoperator.close();
                 myHandler.sendEmptyMessage(0x24);

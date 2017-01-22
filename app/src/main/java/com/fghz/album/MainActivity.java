@@ -42,6 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.tensorflow.demo.Classifier;
+import org.tensorflow.demo.TensorFlowImageClassifier;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -88,6 +89,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int NOTI_CODE_FINISHED = 3;
     private int NOTI_CODE_NEW_PHOTO = 4;
     private NotificationManager manager;
+
+    private TensorFlowImageClassifier classifier;
 
     // actionBar
     public static android.support.v7.app.ActionBar actionBar;
@@ -189,6 +192,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void run() {
                     Looper.prepare();
                     Bitmap bitmap;
+                    // init tensorflow
+                    if (classifier == null) {
+                        // get permission
+                        classifier = new TensorFlowImageClassifier();
+                        try {
+                            classifier.initializeTensorFlow(
+                                    getAssets(), Config.MODEL_FILE, Config.LABEL_FILE,
+                                    Config.NUM_CLASSES, Config.INPUT_SIZE, Config.IMAGE_MEAN,
+                                    Config.IMAGE_STD, Config.INPUT_NAME, Config.OUTPUT_NAME);
+                        } catch (final IOException e) {
+
+                        }
+                    }
                     ContentValues value = new ContentValues();
                     MyDatabaseOperator myoperator = new MyDatabaseOperator(MainActivity.this,
                             Config.DB_NAME, Config.dbversion);
@@ -204,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         BitmapFactory.Options options = new BitmapFactory.Options();
                         options.inPreferredConfig = Bitmap.Config.ARGB_4444;
                         bitmap = BitmapFactory.decodeFile(image, options);
-                        insertImageIntoDB(image, do_tensorflow(bitmap), myoperator, value);
+                        insertImageIntoDB(image, do_tensorflow(bitmap, classifier), myoperator, value);
                         if (havaInAlbum) {
                             myHandler.sendEmptyMessage(0x11);
                         }
@@ -267,6 +283,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 else {
                     startCamera();
                 }
+                break;
+            case R.id.action_voice:
+                Intent intent = new Intent(MainActivity.this, MapActivity.class);
+
+                startActivity(intent);
                 break;
                 // 语音
             default:
@@ -364,6 +385,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void dealPics(FileDescriptor fileDescriptor) {
         Bitmap bitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+        // init tensorflow
+        if (classifier == null) {
+            // get permission
+            classifier = new TensorFlowImageClassifier();
+            try {
+                classifier.initializeTensorFlow(
+                        getAssets(), Config.MODEL_FILE, Config.LABEL_FILE,
+                        Config.NUM_CLASSES, Config.INPUT_SIZE, Config.IMAGE_MEAN,
+                        Config.IMAGE_STD, Config.INPUT_NAME, Config.OUTPUT_NAME);
+            } catch (final IOException e) {
+
+            }
+        }
         // resize bitmap
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
@@ -373,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         matrix.postScale(scaleWidth, scaleHeight);
         Bitmap newbm = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
         // get classifier information
-        results = Config.classifier.recognizeImage(newbm);
+        results = classifier.recognizeImage(newbm);
         for (final Classifier.Recognition result : results) {
             System.out.println("Result: " + result.getTitle());
         }

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -49,6 +50,8 @@ public class PhotoInfoActivity extends AppCompatActivity {
     private List<Classifier.Recognition> results;
     // image info
     private Map<String, String> image_info;
+    private TensorFlowImageClassifier classifier;
+
 
     public PhotoInfoActivity() {
 
@@ -71,6 +74,48 @@ public class PhotoInfoActivity extends AppCompatActivity {
         // set image
         ImageView iv = (ImageView) findViewById(R.id.photo_target);
         Log.d("URL", url);
+
+        try {
+            String TAG = "PHOTO";
+//            String path = (String) v.getTag();
+//            Log.i(TAG, "path:" + path);
+            ExifInterface exifInterface = new ExifInterface(url);
+
+            String TAG_APERTURE = exifInterface.getAttribute(ExifInterface.TAG_APERTURE);
+            String TAG_DATETIME = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
+            String TAG_EXPOSURE_TIME = exifInterface.getAttribute(ExifInterface.TAG_EXPOSURE_TIME);
+            String TAG_FLASH = exifInterface.getAttribute(ExifInterface.TAG_FLASH);
+            String TAG_FOCAL_LENGTH = exifInterface.getAttribute(ExifInterface.TAG_FOCAL_LENGTH);
+            String TAG_IMAGE_LENGTH = exifInterface.getAttribute(ExifInterface.TAG_IMAGE_LENGTH);
+            String TAG_IMAGE_WIDTH = exifInterface.getAttribute(ExifInterface.TAG_IMAGE_WIDTH);
+            String TAG_ISO = exifInterface.getAttribute(ExifInterface.TAG_ISO);
+            String TAG_MAKE = exifInterface.getAttribute(ExifInterface.TAG_MAKE);
+            String TAG_MODEL = exifInterface.getAttribute(ExifInterface.TAG_MODEL);
+            String TAG_ORIENTATION = exifInterface.getAttribute(ExifInterface.TAG_ORIENTATION);
+            String TAG_WHITE_BALANCE = exifInterface.getAttribute(ExifInterface.TAG_WHITE_BALANCE);
+
+            Log.i(TAG, "光圈值:" + TAG_APERTURE);
+            Log.i(TAG, "拍摄时间:" + TAG_DATETIME);
+            Log.i(TAG, "曝光时间:" + TAG_EXPOSURE_TIME);
+            Log.i(TAG, "闪光灯:" + TAG_FLASH);
+            Log.i(TAG, "焦距:" + TAG_FOCAL_LENGTH);
+            Log.i(TAG, "图片高度:" + TAG_IMAGE_LENGTH);
+            Log.i(TAG, "图片宽度:" + TAG_IMAGE_WIDTH);
+            Log.i(TAG, "ISO:" + TAG_ISO);
+            Log.i(TAG, "设备品牌:" + TAG_MAKE);
+            Log.i(TAG, "设备型号:" + TAG_MODEL);
+            Log.i(TAG, "旋转角度:" + TAG_ORIENTATION);
+            Log.i(TAG, "白平衡:" + TAG_WHITE_BALANCE);
+                /*
+                Date date = UtilsTime.stringTimeToDate(TAG_DATETIME, new SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.getDefault()));
+
+                String FStringTime = UtilsTime.dateToStringTime(date, new SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault()));
+
+                mTextView.setText("TAG_DATETIME = " + TAG_DATETIME + "\n" + "FStringTime = " + FStringTime);
+                */
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Glide
                 .with(PhotoInfoActivity.this)
                 .load(url)
@@ -130,10 +175,10 @@ public class PhotoInfoActivity extends AppCompatActivity {
     private void initTensorflow() {
         // tf is a static value
         // if wasn't init  before, do this
-        if (Config.classifier == null) {
-            Config.classifier = new TensorFlowImageClassifier();
+        if (classifier == null) {
+            classifier = new TensorFlowImageClassifier();
             try {
-                Config.classifier.initializeTensorFlow(
+                classifier.initializeTensorFlow(
                         getAssets(), Config.MODEL_FILE, Config.LABEL_FILE, Config.NUM_CLASSES, Config.INPUT_SIZE, Config.IMAGE_MEAN, Config.IMAGE_STD,
                         Config.INPUT_NAME, Config.OUTPUT_NAME);
             } catch (final IOException e) {
@@ -170,7 +215,7 @@ public class PhotoInfoActivity extends AppCompatActivity {
         matrix.postScale(scaleWidth, scaleHeight);
         Bitmap newbm = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
         // get results
-        results = Config.classifier.recognizeImage(newbm);
+        results = classifier.recognizeImage(newbm);
         Log.d("Result", String.valueOf(results));
     }
     // update UI in this class

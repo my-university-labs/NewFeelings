@@ -27,7 +27,6 @@ public class Config {
     public static final String MODEL_FILE = "file:///android_asset/stripped_graph.pb";
     public static final String LABEL_FILE = "file:///android_asset/retrained_labels.txt";
     // once the 'tfpb' had been load, the appliction needn't to reload it again when another thread need tf
-    public static TensorFlowImageClassifier classifier;
     // location to save image
     public static String location = "/sdcard/TfAlbum/";
     // database
@@ -37,9 +36,6 @@ public class Config {
     // update db after take photo finish?
     public static boolean workdone = false;
     // init the application done
-    public static boolean init = false;
-    // image cache
-    public static LruCache mImageCache;
 
     // how many
     public static int imageNumber = 12;

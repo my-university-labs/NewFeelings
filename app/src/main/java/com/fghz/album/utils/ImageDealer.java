@@ -13,6 +13,7 @@ import com.fghz.album.Config;
 import com.fghz.album.dao.MyDatabaseOperator;
 
 import org.tensorflow.demo.Classifier;
+import org.tensorflow.demo.TensorFlowImageClassifier;
 
 import java.util.List;
 import java.util.Map;
@@ -100,12 +101,13 @@ public class ImageDealer {
      * @param bitmap
      */
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    public static List<Classifier.Recognition>  do_tensorflow(Bitmap bitmap) {
+    public static List<Classifier.Recognition>
+    do_tensorflow(Bitmap bitmap, TensorFlowImageClassifier classifier) {
         // resize image
         Bitmap newbm = dealImageForTF(bitmap);
         // get results
         try {
-            return Config.classifier.recognizeImage(newbm);
+            return classifier.recognizeImage(newbm);
         } catch (Exception e) {
             Log.e("TF-ERROR", "1");
             return null;
