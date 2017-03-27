@@ -36,31 +36,19 @@
             android:textColor="@drawable/tab_menu_text"
             android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/assistant"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:drawablePadding="1dp"
-            android:drawableTop="@drawable/tab_assistant"
-            android:gravity="center"
-            android:padding="10dp"
-            android:text="@string/tab_menu_type"
-            android:textColor="@drawable/tab_menu_text"
-            android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/memory"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:drawablePadding="1dp"
-            android:drawableTop="@drawable/tab_memory"
-            android:gravity="center"
-            android:padding="10dp"
-            android:text="@string/tab_menu_memory"
-            android:textColor="@drawable/tab_menu_text"
-            android:textSize="12sp" />
+        <!--<TextView-->
+            <!--android:id="@+id/memory"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_weight="1"-->
+            <!--android:drawablePadding="1dp"-->
+            <!--android:drawableTop="@drawable/tab_memory"-->
+            <!--android:gravity="center"-->
+            <!--android:padding="10dp"-->
+            <!--android:text="@string/tab_menu_memory"-->
+            <!--android:textColor="@drawable/tab_menu_text"-->
+            <!--android:textSize="12sp" />-->
 
         <TextView
             android:id="@+id/all_albums"

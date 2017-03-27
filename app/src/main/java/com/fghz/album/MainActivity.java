@@ -68,11 +68,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //UI Object
     private TextView txt_photos;
-    private TextView txt_memory;
     private TextView txt_albums;
 
     //Fragment Object
-    private Memory memory;
     private Photos photos;
     private Albums albums;
     private FragmentManager fManager;
@@ -98,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FragmentTransaction fTransaction;
 
     private boolean havaInAlbum = false;
-    private boolean haveInMemory = false;
 
 
     private Handler myHandler = new Handler() {
@@ -108,9 +105,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // scanning images
                 case 0x11:
                     albums.onRefresh();
-                    break;
-                case 0x22:
-                    memory.onRefresh();
                     break;
 
             }
@@ -154,11 +148,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         builder.setSmallIcon(R.mipmap.ic_launcher);
         builder.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.camera));
         //禁止用户点击删除按钮删除
-        builder.setAutoCancel(false);
+        builder.setAutoCancel(true);
         //禁止滑动删除
-        builder.setOngoing(true);
+        builder.setOngoing(false);
         //取消右上角的时间显示
-        builder.setShowWhen(false);
+        builder.setShowWhen(true);
         if (now != sum)
             builder.setContentTitle("正在新处理图片...   "+ now +"/" + sum);
         else {
@@ -223,9 +217,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         insertImageIntoDB(image, do_tensorflow(bitmap, classifier), myoperator, value);
                         if (havaInAlbum) {
                             myHandler.sendEmptyMessage(0x11);
-                        }
-                        if (haveInMemory) {
-                            myHandler.sendEmptyMessage(0x22);
                         }
 
                     }
@@ -495,25 +486,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void bindViews() {
         // 定位textview
         txt_photos = (TextView) findViewById(R.id.all_photos);
-        txt_memory = (TextView) findViewById(R.id.memory);
         txt_albums = (TextView) findViewById(R.id.all_albums);
         // 对其设置监听动作
         txt_photos.setOnClickListener(this);
-        txt_memory.setOnClickListener(this);
         txt_albums.setOnClickListener(this);
     }
 
     //重置所有文本的选中状态为未点击状态
     private void setSelected(){
         txt_photos.setSelected(false);
-        txt_memory.setSelected(false);
         txt_albums.setSelected(false);
     }
 
     //隐藏所有Fragment
     private void hideAllFragment(FragmentTransaction fragmentTransaction){
         if(photos != null)fragmentTransaction.hide(photos);
-        if(memory != null)fragmentTransaction.hide(memory);
         if(albums != null)fragmentTransaction.hide(albums);
     }
 
@@ -548,24 +535,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
 
                 break;
-            // 回忆
-            case R.id.memory:
-                // 用于显示相应的属性
-                // same as photos
-                actionBar.setDisplayHomeAsUpEnabled(false);
-                actionBar.setTitle("回忆");
 
-                setSelected();
-                txt_memory.setSelected(true);
-                getFragmentManager().popBackStack();
-                if(memory == null){
-                    memory = new Memory();
-                    fTransaction.add(R.id.ly_content, memory);
-                }else{
-                    fTransaction.show(memory);
-                }
-                haveInMemory = true;
-                break;
             // 相册
             case R.id.all_albums:
 
