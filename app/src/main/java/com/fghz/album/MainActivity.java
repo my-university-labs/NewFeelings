@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static android.support.v7.app.ActionBar actionBar;
     // fragment
     private FragmentTransaction fTransaction;
-
     private boolean havaInAlbum = false;
 
 
