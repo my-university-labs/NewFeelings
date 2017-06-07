@@ -4,7 +4,7 @@ New Feelings -- An album application for Android && use tensorflow to classify i
 
 > preview0
 
-![start](preview/start.gif)
+<center> ![start](preview/start.gif) </center>
 
 > preview1 
 
