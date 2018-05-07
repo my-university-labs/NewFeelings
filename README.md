@@ -1,5 +1,8 @@
 New Feelings -- An album application for Android && use tensorflow to classify images
 
+tensorflow version: 0.12
+
+
 > preview0
 
   ![start](preview/start.gif)
